@@ -1,6 +1,6 @@
 {
   "name": "hls-segment-downloader",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "description": "웹페이지의 HLS(m3u8) 스트림을 감지해 세그먼트를 병합 다운로드하는 Chrome 확장",

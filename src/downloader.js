@@ -298,7 +298,10 @@ async function startDownload() {
       size: fmtBytes(saveFile.size),
       time: fmtTime((performance.now() - startedAt) / 1000),
     });
-    const url = URL.createObjectURL(saveFile);
+    // OPFS 파일은 MIME 타입이 비어 있어 Chrome이 text/plain으로 추정하고, Windows 저장 창이 .txt로 바꿔버린다.
+    // slice()로 타입만 지정한다(데이터 복사 없음).
+    const mime = saveName.endsWith('.mp4') ? 'video/mp4' : 'video/mp2t';
+    const url = URL.createObjectURL(saveFile.slice(0, saveFile.size, mime));
     const id = await chrome.downloads.download({ url, filename: saveName, saveAs: true });
     const state = await waitForDownload(id);
     URL.revokeObjectURL(url);
