@@ -80,11 +80,11 @@ test('DRM 스트림은 지원 불가로 판정한다', () => {
 a.ts`,
     BASE,
   );
-  assert.match(getUnsupportedReason(sampleAes), /SAMPLE-AES/);
+  assert.deepEqual(getUnsupportedReason(sampleAes), { key: 'errDrmMethod', params: { method: 'SAMPLE-AES' } });
 });
 
 test('#EXTM3U 헤더가 없으면 에러', () => {
-  assert.throws(() => parsePlaylist('<html></html>', BASE), /유효한 M3U8/);
+  assert.throws(() => parsePlaylist('<html></html>', BASE), (e) => e.i18nKey === 'errInvalidM3u8');
 });
 
 test('IV 유틸리티', () => {

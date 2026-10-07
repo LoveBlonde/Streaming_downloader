@@ -1,0 +1,8 @@
+{
+  "extName": {
+    "message": "HLS Segment Downloader"
+  },
+  "extDescription": {
+    "message": "检测网页中播放的 HLS（m3u8）流，并行下载分片并保存为单个 MP4 文件。"
+  }
+}

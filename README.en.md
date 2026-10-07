@@ -4,7 +4,7 @@
 
 A Chrome/Edge extension that automatically detects HLS (`.m3u8`) streams playing on a web page, downloads their segments in parallel, and merges them into **a single MP4 file**. Streams whose video and audio are split into separate tracks are merged automatically as well.
 
-> The extension's UI is currently available in Korean only. Button labels are shown in parentheses below.
+The UI is available in Korean, English, Simplified Chinese and Japanese (see [Settings](#settings-ui-language)).
 
 ## Installation (Developer mode)
 
@@ -17,12 +17,21 @@ A Chrome/Edge extension that automatically detects HLS (`.m3u8`) streams playing
 
 1. **Play the video** on the page. When an m3u8 request is detected, a number badge appears on the extension icon.
    - If the video was already playing, reload the page and play it again (requests made before the extension was installed can't be detected).
-2. Click the extension icon → click **Download** (다운로드) next to the detected stream
-   - Often both `master.m3u8` (quality list) and `index.m3u8` (actual segment list) are captured. Picking the master usually lets you choose the quality.
-   - If you already know the URL, use **Enter URL manually** (URL 직접 입력) in the popup. Set the Referer to the address of the page the video was on.
-3. In the new tab, choose quality / audio track (when there are several) / file name / number of parallel connections, then click **Start download** (다운로드 시작)
+2. Click the extension icon → click **Download** next to the detected stream
+   - **It is normal for 2 or more m3u8s to be detected for one video.** The player first loads the **quality list (master)** and then the **playlist (media)** of the chosen quality.
+   - The popup checks each entry and labels it `Quality list · Recommended` / `Single playlist`; a playlist that belongs to a quality list is dimmed and moved down. **Download the entry marked `Recommended`.** Downloading only the playlist gives you no quality choice and may lose the audio on sites that serve audio as a separate track.
+   - If you already know the URL, use **Enter URL manually** in the popup. Set the Referer to the address of the page the video was on.
+3. In the new tab, choose quality / audio track (when there are several) / file name / number of parallel connections, then click **Start download**
    - Stages: video download → audio download (if separate) → MP4 conversion
 4. When finished, a save dialog appears. **Do not close the tab while downloading.**
+
+## Settings (UI language)
+
+Choose the UI language with the **⚙** button at the top right of the popup (or `chrome://extensions` → Details → Extension options).
+
+- Automatic (browser language) / 한국어 / English / 简体中文 / 日本語
+- Applies immediately to the popup and settings page; download tabs that are already open apply it after a reload.
+- The name/description in Chrome's extension list follow the browser language (a Chrome restriction).
 
 ## How it works
 
@@ -61,14 +70,19 @@ npm test   # unit tests for the parser, downloader and MP4 remux (Node 20+, no d
 
 ```
 manifest.json
+_locales/              # extension name/description (en, ko, ja, zh_CN)
 src/
   background.js        # m3u8 request detection (service worker)
-  popup.html/js        # detected-stream list UI
+  popup.html/js        # detected-stream list UI (master/media labels)
+  options.html/js      # settings page (language)
   downloader.html/js   # quality selection, progress and save UI; installs the Referer rule
   lib/m3u8.js          # playlist parser
   lib/hls-downloader.js# parallel download, retries, AES-128 decryption, in-order writing
   lib/opfs-sink.js     # OPFS temporary files
   lib/remux.js         # TS/fMP4/ADTS → MP4 remux, video + audio merge
+  lib/i18n.js          # UI translations and language setting
+  lib/classify.js      # master/media relationship of detected streams
+  lib/errors.js, format.js
   vendor/mediabunny/   # Mediabunny 1.61.3 (MPL-2.0), bundled file included unmodified
 tests/                 # fixtures/ contains short TS/AAC test files
 ```

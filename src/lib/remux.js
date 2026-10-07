@@ -17,6 +17,7 @@ import {
   WaveInputFormat,
   OggInputFormat,
 } from '../vendor/mediabunny/mediabunny.min.mjs';
+import { LocalizedError } from './errors.js';
 
 // MPEG-TS/MP4는 원본 타임스탬프(PTS)를 담고 있어 영상·음성 파일이 같은 타임라인을 공유한다.
 // 반면 ADTS/MP3 같은 raw 오디오는 타임스탬프가 없어 항상 0부터 시작하므로 각자 0으로 맞춰야 한다.
@@ -51,7 +52,7 @@ export async function remuxToMp4({ video, audio, target, duration, onProgress, s
     const audioTrack = await audioInput.getPrimaryAudioTrack();
     const audioFormat = audio ? await audioInput.getFormat() : null;
     const audioIsRaw = RAW_AUDIO_FORMATS.some((F) => audioFormat instanceof F);
-    if (!videoTrack && !audioTrack) throw new Error('파일에서 영상/음성 트랙을 찾지 못했습니다.');
+    if (!videoTrack && !audioTrack) throw new LocalizedError('errNoTracks');
 
     const output = new Output({
       // fastStart: false → 샘플을 순서대로 쓰고 moov를 마지막에 기록. 메모리를 거의 쓰지 않는다.
@@ -66,7 +67,7 @@ export async function remuxToMp4({ video, audio, target, duration, onProgress, s
     ]) {
       if (!track) continue;
       const codec = await track.getCodec();
-      if (!codec) throw new Error(`MP4에 담을 수 없는 ${kind === 'video' ? '영상' : '음성'} 코덱입니다.`);
+      if (!codec) throw new LocalizedError(kind === 'video' ? 'errCodecVideo' : 'errCodecAudio');
       const iterator = new EncodedPacketSink(track).packets();
       const first = await iterator.next();
       if (first.done) continue;

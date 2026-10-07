@@ -2,6 +2,7 @@
 // chrome.* API에 의존하지 않으므로 Node 테스트에서도 그대로 실행된다.
 
 import { sequenceToIv } from './m3u8.js';
+import { LocalizedError } from './errors.js';
 
 const sleep = (ms, signal) =>
   new Promise((resolve, reject) => {
@@ -100,7 +101,7 @@ export class HlsDownloader {
   getKey(uri) {
     if (!this.keyCache.has(uri)) {
       const p = this.fetchBytes(uri, null).then((raw) => {
-        if (raw.length !== 16) throw new Error(`AES-128 키 길이가 16바이트가 아닙니다 (${raw.length}바이트).`);
+        if (raw.length !== 16) throw new LocalizedError('errKeyLength', { n: raw.length });
         return crypto.subtle.importKey('raw', raw, { name: 'AES-CBC' }, false, ['decrypt']);
       });
       // 실패한 키 요청은 캐시에서 빼서 다음 세그먼트가 다시 시도할 수 있게 한다.
@@ -113,7 +114,7 @@ export class HlsDownloader {
   async downloadSegment(seg) {
     const data = await this.fetchBytes(seg.uri, seg.byteRange);
     if (!seg.key) return stripId3(data);
-    if (seg.key.method !== 'AES-128') throw new Error(`지원하지 않는 암호화 방식: ${seg.key.method}`);
+    if (seg.key.method !== 'AES-128') throw new LocalizedError('errUnsupportedMethod', { method: seg.key.method });
     const key = await this.getKey(seg.key.uri);
     const iv = seg.key.iv ?? sequenceToIv(seg.sequence);
     // WebCrypto AES-CBC는 PKCS#7 패딩을 자동으로 제거한다.

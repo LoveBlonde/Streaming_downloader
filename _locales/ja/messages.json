@@ -1,0 +1,8 @@
+{
+  "extName": {
+    "message": "HLS Segment Downloader"
+  },
+  "extDescription": {
+    "message": "ページで再生される HLS（m3u8）ストリームを検出し、セグメントを並列でダウンロードして 1 つの MP4 として保存します。"
+  }
+}

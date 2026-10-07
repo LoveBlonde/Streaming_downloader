@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ko">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>HLS 다운로드</title>
+    <title>HLS Downloader</title>
     <link rel="stylesheet" href="common.css" />
     <style>
       body { max-width: 760px; margin: 0 auto; padding: 24px 16px; }
@@ -18,41 +18,41 @@
     </style>
   </head>
   <body>
-    <h1>HLS 세그먼트 다운로드</h1>
+    <h1 data-i18n="dlTitle"></h1>
 
     <div class="card">
-      <div><b>원본 URL</b></div>
+      <div><b data-i18n="sourceUrl"></b></div>
       <div class="mono" id="srcUrl"></div>
-      <div style="margin-top: 6px"><b>Referer</b></div>
+      <div style="margin-top: 6px"><b data-i18n="referer"></b></div>
       <div class="mono" id="srcReferer"></div>
     </div>
 
-    <div class="card" id="loading">플레이리스트를 불러오는 중…</div>
+    <div class="card" id="loading" data-i18n="loadingPlaylist"></div>
     <div class="card error" id="fatal" hidden></div>
 
     <div class="card" id="setup" hidden>
       <div id="variantBox" hidden>
-        <label for="variant">화질</label>
+        <label for="variant" data-i18n="quality"></label>
         <select id="variant"></select>
       </div>
       <div id="audioBox" hidden>
-        <label for="audio">음성 트랙</label>
+        <label for="audio" data-i18n="audioTrack"></label>
         <select id="audio" style="width: 100%"></select>
       </div>
       <div id="info" style="margin-top: 10px"></div>
       <div id="warnings"></div>
       <div class="grid">
         <div>
-          <label for="filename">파일 이름</label>
+          <label for="filename" data-i18n="filename"></label>
           <input id="filename" />
         </div>
         <div>
-          <label for="concurrency">동시 연결 수</label>
+          <label for="concurrency" data-i18n="concurrency"></label>
           <input id="concurrency" type="number" min="1" max="16" value="6" />
         </div>
       </div>
       <div class="actions">
-        <button id="start">다운로드 시작</button>
+        <button id="start" data-i18n="start"></button>
       </div>
     </div>
 
@@ -63,7 +63,7 @@
         <span id="pSegments"></span><span id="pBytes"></span><span id="pSpeed"></span><span id="pEta"></span><span id="pRetries"></span>
       </div>
       <div id="status" style="margin-top: 8px"></div>
-      <div class="actions"><button id="cancel" class="danger">취소</button></div>
+      <div class="actions"><button id="cancel" class="danger" data-i18n="cancel"></button></div>
     </div>
 
     <script type="module" src="downloader.js"></script>

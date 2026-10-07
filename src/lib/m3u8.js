@@ -1,6 +1,8 @@
 // M3U8 (HLS) 플레이리스트 파서.
 // 브라우저(확장 페이지)와 Node(테스트) 양쪽에서 동작하도록 외부 의존성 없이 작성한다.
 
+import { LocalizedError } from './errors.js';
+
 /**
  * `KEY=VALUE,KEY="VALUE"` 형태의 속성 목록을 객체로 변환한다.
  * @param {string} str
@@ -65,13 +67,13 @@ function parseByteRange(value, prevEnd) {
  */
 export function parsePlaylist(text, baseUrl) {
   const lines = text
-    .replace(/^﻿/, '')
+    .replace(/^\uFEFF/, '')
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
 
   if (lines[0] !== '#EXTM3U') {
-    throw new Error('유효한 M3U8 파일이 아닙니다 (#EXTM3U 헤더 없음).');
+    throw new LocalizedError('errInvalidM3u8');
   }
 
   const isMaster = lines.some((l) => l.startsWith('#EXT-X-STREAM-INF'));
@@ -211,13 +213,13 @@ function parseMedia(lines, baseUrl) {
  * AES-128(전체 세그먼트 암호화, 키 URI 공개)은 표준 HLS 암호화로 지원하지만,
  * SAMPLE-AES / Widevine / FairPlay / PlayReady 등 DRM은 지원하지 않는다.
  * @param {MediaPlaylist} media
- * @returns {string|null} 지원 불가 사유. 지원 가능하면 null.
+ * @returns {{key: string, params: object}|null} 지원 불가 사유(i18n 키). 지원 가능하면 null.
  */
 export function getUnsupportedReason(media) {
   const badMethod = media.keyMethods.find((m) => m !== 'NONE' && m !== 'AES-128');
-  if (badMethod) return `DRM/미지원 암호화 방식(${badMethod})이 적용된 스트림입니다.`;
+  if (badMethod) return { key: 'errDrmMethod', params: { method: badMethod } };
   const badFormat = media.keyFormats.find((f) => f !== 'identity');
-  if (badFormat) return `DRM 키 포맷(${badFormat})이 적용된 스트림입니다.`;
-  if (media.segments.length === 0) return '세그먼트가 없는 플레이리스트입니다.';
+  if (badFormat) return { key: 'errDrmKeyFormat', params: { format: badFormat } };
+  if (media.segments.length === 0) return { key: 'errNoSegments', params: {} };
   return null;
 }
