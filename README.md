@@ -1,5 +1,7 @@
 # HLS Segment Downloader (Chrome 확장)
 
+**한국어** | [English](README.en.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
 웹페이지에서 재생되는 HLS(`.m3u8`) 스트림을 자동 감지하고, 조각(세그먼트)을 병렬로 받아 **MP4 파일 하나로** 합쳐 저장하는 Chrome/Edge 확장 프로그램입니다. 영상과 음성이 별도 트랙으로 나뉜 스트림도 자동으로 합칩니다.
 
 ## 설치 (개발자 모드)
@@ -52,7 +54,7 @@
 ## 개발
 
 ```bash
-npm test   # 파서·다운로더 단위 테스트 (Node 20+, 외부 의존성 없음)
+npm test   # 파서·다운로더·MP4 변환 단위 테스트 (Node 20+, 설치할 의존성 없음)
 ```
 
 ```
