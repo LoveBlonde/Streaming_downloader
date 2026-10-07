@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="common.css" />
+    <style>
+      body { width: 420px; padding: 12px; }
+      .item { border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+      .url { font-family: ui-monospace, monospace; font-size: 11px; word-break: break-all; color: var(--muted); max-height: 3.6em; overflow: hidden; }
+      .row { display: flex; gap: 6px; align-items: center; justify-content: space-between; margin-top: 6px; }
+      .empty { color: var(--muted); padding: 12px 0; }
+      details { margin-top: 10px; }
+      input { width: 100%; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>감지된 HLS 스트림</h1>
+    <div id="list"></div>
+    <details>
+      <summary>URL 직접 입력</summary>
+      <input id="manualUrl" placeholder="https://.../playlist.m3u8" />
+      <input id="manualReferer" placeholder="Referer (선택, 비우면 현재 탭 주소)" />
+      <div class="row"><span></span><button id="manualGo">다운로드 페이지 열기</button></div>
+    </details>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

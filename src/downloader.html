@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>HLS 다운로드</title>
+    <link rel="stylesheet" href="common.css" />
+    <style>
+      body { max-width: 760px; margin: 0 auto; padding: 24px 16px; }
+      .card { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+      .mono { font-family: ui-monospace, monospace; font-size: 12px; word-break: break-all; color: var(--muted); }
+      label { display: block; margin: 10px 0 4px; font-weight: 600; }
+      .grid { display: grid; grid-template-columns: 1fr 120px; gap: 10px; }
+      .grid input, #variant { width: 100%; }
+      progress { width: 100%; height: 14px; }
+      .stats { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); margin-top: 6px; }
+      .actions { display: flex; gap: 8px; margin-top: 14px; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <h1>HLS 세그먼트 다운로드</h1>
+
+    <div class="card">
+      <div><b>원본 URL</b></div>
+      <div class="mono" id="srcUrl"></div>
+      <div style="margin-top: 6px"><b>Referer</b></div>
+      <div class="mono" id="srcReferer"></div>
+    </div>
+
+    <div class="card" id="loading">플레이리스트를 불러오는 중…</div>
+    <div class="card error" id="fatal" hidden></div>
+
+    <div class="card" id="setup" hidden>
+      <div id="variantBox" hidden>
+        <label for="variant">화질</label>
+        <select id="variant"></select>
+      </div>
+      <div id="info" style="margin-top: 10px"></div>
+      <div id="warnings"></div>
+      <div class="grid">
+        <div>
+          <label for="filename">파일 이름</label>
+          <input id="filename" />
+        </div>
+        <div>
+          <label for="concurrency">동시 연결 수</label>
+          <input id="concurrency" type="number" min="1" max="16" value="6" />
+        </div>
+      </div>
+      <div class="actions">
+        <button id="start">다운로드 시작</button>
+      </div>
+    </div>
+
+    <div class="card" id="progressCard" hidden>
+      <progress id="bar" value="0" max="1"></progress>
+      <div class="stats">
+        <span id="pSegments"></span><span id="pBytes"></span><span id="pSpeed"></span><span id="pEta"></span><span id="pRetries"></span>
+      </div>
+      <div id="status" style="margin-top: 8px"></div>
+      <div class="actions"><button id="cancel" class="danger">취소</button></div>
+    </div>
+
+    <script type="module" src="downloader.js"></script>
+  </body>
+</html>

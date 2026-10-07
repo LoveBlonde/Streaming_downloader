@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "HLS Segment Downloader",
+  "version": "0.1.0",
+  "description": "페이지에서 재생되는 HLS(m3u8) 스트림을 감지하고, 세그먼트를 병렬로 받아 하나의 파일로 합쳐 저장합니다.",
+  "minimum_chrome_version": "116",
+  "permissions": ["webRequest", "declarativeNetRequestWithHostAccess", "storage", "downloads", "unlimitedStorage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "HLS Segment Downloader",
+    "default_popup": "src/popup.html"
+  }
+}
