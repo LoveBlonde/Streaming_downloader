@@ -1,0 +1,1 @@
+mediabunny@1.61.3 (https://github.com/Vanilagy/mediabunny) — MPL-2.0. dist/bundles/mediabunny.min.mjs 그대로 복사, 수정하지 않음.

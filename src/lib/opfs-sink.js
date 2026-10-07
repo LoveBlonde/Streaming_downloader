@@ -1,6 +1,5 @@
-// 병합 결과를 메모리가 아닌 OPFS(Origin Private File System)에 스트리밍으로 기록한다.
-// 수 GB짜리 영상도 RAM에 올리지 않고 합칠 수 있고, 완료 후 디스크 기반 Blob URL로 저장한다.
-// OPFS를 쓸 수 없는 환경이면 메모리 Blob으로 대체한다.
+// 임시 파일을 메모리가 아닌 OPFS(Origin Private File System, 브라우저 전용 디스크 영역)에 만든다.
+// 수 GB짜리 영상도 RAM에 올리지 않고 받고·합치고·변환할 수 있다.
 
 const LOCK_PREFIX = 'hls-part:';
 
@@ -16,18 +15,16 @@ export async function cleanupOrphanedParts() {
   }
 }
 
-export async function createSink() {
-  try {
-    return await createOpfsSink();
-  } catch (e) {
-    console.warn('[hls] OPFS 사용 불가, 메모리 모드로 전환', e);
-    return createMemorySink();
-  }
-}
-
-async function createOpfsSink() {
+/**
+ * OPFS 임시 파일을 만든다.
+ * - `writable`: 위치 지정 쓰기({type:'write', position, data})를 지원하는 WritableStream
+ * - `write(chunk)`: 순차 쓰기
+ * - `close()`: 쓰기를 끝내고 디스크 기반 File(Blob)을 돌려준다
+ * - `remove()`: 파일 삭제
+ */
+export async function createTempFile(label = 'tmp') {
   const root = await navigator.storage.getDirectory();
-  const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.part`;
+  const name = `${Date.now()}-${label}-${Math.random().toString(36).slice(2)}.part`;
 
   // 이 탭이 살아있는 동안 잠금을 쥐고 있어, 다른 탭의 정리 작업이 파일을 지우지 못하게 한다.
   let releaseLock;
@@ -43,25 +40,22 @@ async function createOpfsSink() {
   let closed = false;
 
   return {
+    writable,
     write: (chunk) => writable.write(chunk),
-    async finish() {
-      await writable.close();
+    /** 쓰기 스트림을 직접 닫은 경우(예: mediabunny StreamTarget이 finalize 시 닫음)에 호출 */
+    markClosed() {
       closed = true;
-      return URL.createObjectURL(await handle.getFile());
     },
-    async cleanup() {
+    async close() {
+      if (!closed) await writable.close();
+      closed = true;
+      return handle.getFile();
+    },
+    async remove() {
       if (!closed) await writable.abort().catch(() => {});
+      closed = true;
       await root.removeEntry(name).catch(() => {});
       releaseLock?.();
     },
-  };
-}
-
-function createMemorySink() {
-  const parts = [];
-  return {
-    write: async (chunk) => void parts.push(chunk),
-    finish: async () => URL.createObjectURL(new Blob(parts)),
-    cleanup: async () => void (parts.length = 0),
   };
 }

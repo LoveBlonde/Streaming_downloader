@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { HlsDownloader } from '../src/lib/hls-downloader.js';
+import { HlsDownloader, stripId3 } from '../src/lib/hls-downloader.js';
 import { sequenceToIv } from '../src/lib/m3u8.js';
 
 const KEY = new Uint8Array(16).map((_, i) => i * 7);
@@ -127,4 +127,11 @@ test('취소(AbortSignal)하면 중단된다', async () => {
     onProgress: (p) => p.done === 5 && ac.abort(),
   });
   await assert.rejects(dl.run(), (e) => e.name === 'AbortError');
+});
+
+test('packed audio 세그먼트 앞의 ID3 태그를 제거한다', () => {
+  const id3 = [0x49, 0x44, 0x33, 4, 0, 0, 0, 0, 0, 3, 1, 2, 3];
+  const adts = [0xff, 0xf1, 0x50];
+  assert.deepEqual([...stripId3(new Uint8Array([...id3, ...adts]))], adts);
+  assert.deepEqual([...stripId3(new Uint8Array([0x47, 1, 2]))], [0x47, 1, 2]);
 });

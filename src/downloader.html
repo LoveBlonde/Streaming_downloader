@@ -35,6 +35,10 @@
         <label for="variant">화질</label>
         <select id="variant"></select>
       </div>
+      <div id="audioBox" hidden>
+        <label for="audio">음성 트랙</label>
+        <select id="audio" style="width: 100%"></select>
+      </div>
       <div id="info" style="margin-top: 10px"></div>
       <div id="warnings"></div>
       <div class="grid">
@@ -53,6 +57,7 @@
     </div>
 
     <div class="card" id="progressCard" hidden>
+      <div id="phase" style="font-weight: 600; margin-bottom: 6px"></div>
       <progress id="bar" value="0" max="1"></progress>
       <div class="stats">
         <span id="pSegments"></span><span id="pBytes"></span><span id="pSpeed"></span><span id="pEta"></span><span id="pRetries"></span>

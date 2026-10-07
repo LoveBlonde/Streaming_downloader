@@ -17,6 +17,21 @@ const sleep = (ms, signal) =>
   });
 
 /**
+ * HLS packed audio(.aac/.mp3 세그먼트)는 각 세그먼트 앞에 타임스탬프용 ID3 태그가 붙는다.
+ * 그대로 이어붙이면 오디오 스트림 중간에 ID3가 끼어 디먹서가 오작동하므로 앞부분의 ID3 태그를 제거한다.
+ * (MPEG-TS는 0x47, fMP4는 박스 크기로 시작하므로 영향 없음)
+ */
+export function stripId3(data) {
+  let pos = 0;
+  while (data.length >= pos + 10 && data[pos] === 0x49 && data[pos + 1] === 0x44 && data[pos + 2] === 0x33) {
+    const size = (data[pos + 6] << 21) | (data[pos + 7] << 14) | (data[pos + 8] << 7) | data[pos + 9];
+    const hasFooter = (data[pos + 5] & 0x10) !== 0;
+    pos += 10 + size + (hasFooter ? 10 : 0);
+  }
+  return pos ? data.subarray(Math.min(pos, data.length)) : data;
+}
+
+/**
  * @typedef {object} Sink
  * @property {(chunk: Uint8Array) => Promise<void>} write
  */
@@ -97,12 +112,12 @@ export class HlsDownloader {
 
   async downloadSegment(seg) {
     const data = await this.fetchBytes(seg.uri, seg.byteRange);
-    if (!seg.key) return data;
+    if (!seg.key) return stripId3(data);
     if (seg.key.method !== 'AES-128') throw new Error(`지원하지 않는 암호화 방식: ${seg.key.method}`);
     const key = await this.getKey(seg.key.uri);
     const iv = seg.key.iv ?? sequenceToIv(seg.sequence);
     // WebCrypto AES-CBC는 PKCS#7 패딩을 자동으로 제거한다.
-    return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, data));
+    return stripId3(new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, data)));
   }
 
   /**
